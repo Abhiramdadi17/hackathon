@@ -9,12 +9,15 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const MONGO_URI = "mongodb+srv://abhiramdadi2005:Abhiram17@cluster0.tpk3b.mongodb.net/event_management?retryWrites=true&w=majority&appName=Cluster0";
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log("MongoDB Connected"))
-  .catch(err => console.log(err));
+const MONGO_URI =
+  "mongodb+srv://abhiramdadi2005:Abhiram17@cluster0.tpk3b.mongodb.net/event_management?retryWrites=true&w=majority&appName=Cluster0";
+mongoose
+  .connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.log(err));
 
 const UserSchema = new mongoose.Schema({
   name: String,
@@ -69,7 +72,6 @@ app.post("/add-service", authenticateToken, async (req, res) => {
   }
 });
 
-
 // Fetch vendors with their services
 // Ensure correct fetching of vendor services
 app.get("/vendors", async (req, res) => {
@@ -80,7 +82,6 @@ app.get("/vendors", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch vendors." });
   }
 });
-
 
 app.post("/register", async (req, res) => {
   const { name, email, password, role } = req.body;
@@ -102,8 +103,13 @@ app.post("/login", async (req, res) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
 
-  const token = jwt.sign({ id: user._id, role: user.role }, "my_secret_key", { expiresIn: "1h" });
-  res.json({ token, user: { name: user.name, email: user.email, role: user.role } });
+  const token = jwt.sign({ id: user._id, role: user.role }, "my_secret_key", {
+    expiresIn: "1h",
+  });
+  res.json({
+    token,
+    user: { name: user.name, email: user.email, role: user.role },
+  });
 });
 
 app.get("/vendors", async (req, res) => {
@@ -151,7 +157,7 @@ app.get("/protected", authenticateToken, async (req, res) => {
 app.get("/vendor-services", authenticateToken, async (req, res) => {
   try {
     const vendor = await User.findById(req.user.id);
-    
+
     if (!vendor || vendor.role !== "vendor") {
       return res.status(403).json({ error: "Access denied." });
     }
@@ -162,7 +168,6 @@ app.get("/vendor-services", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Failed to load services." });
   }
 });
-
 
 // Remove item from cart
 app.delete("/cart/:serviceId", authenticateToken, async (req, res) => {
@@ -185,10 +190,9 @@ app.delete("/cart/:serviceId", authenticateToken, async (req, res) => {
   }
 });
 
-
 app.post("/forgot-password", (req, res) => {
   res.json({ message: "Password reset link sent (dummy response)" });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
